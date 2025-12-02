@@ -53,7 +53,36 @@ document.addEventListener("DOMContentLoaded", () => {
         if (details.participants && details.participants.length) {
           details.participants.forEach((p) => {
             const li = document.createElement("li");
-            li.textContent = p;
+            li.className = "participant-item";
+            // Hide bullet points via CSS, but keep li for structure
+            const span = document.createElement("span");
+            span.textContent = p;
+            li.appendChild(span);
+
+            // Add delete icon
+            const delBtn = document.createElement("button");
+            delBtn.className = "delete-participant";
+            delBtn.title = `Remove ${p}`;
+            delBtn.innerHTML = "&#128465;"; // Trash can icon
+            delBtn.addEventListener("click", async (e) => {
+              e.stopPropagation();
+              if (!confirm(`Remove ${p} from ${name}?`)) return;
+              try {
+                const response = await fetch(`/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(p)}`, { method: "POST" });
+                if (response.ok) {
+                  messageDiv.textContent = result.message;
+                  messageDiv.className = "success";
+                  signupForm.reset();
+                  fetchActivities();
+                } else {
+                  const result = await response.json();
+                  alert(result.detail || "Failed to remove participant.");
+                }
+              } catch (err) {
+                alert("Error removing participant.");
+              }
+            });
+            li.appendChild(delBtn);
             ul.appendChild(li);
           });
         } else {

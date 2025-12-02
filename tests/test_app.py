@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from src.app import app
 
 client = TestClient(app)
-
+#Use Agent mode to get test coverage 
 def test_get_activities():
     response = client.get("/activities")
     assert response.status_code == 200
